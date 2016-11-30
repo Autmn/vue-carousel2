@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>轮播</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.js"></script>
+	<script type="text/javascript" src="https://unpkg.com/vue-router@2.0.3"></script>
+	<style type="text/css">
+	body,ul,li {
+		margin: 0px;
+	}
+
+
+	.wrap:hover .pre {
+		left: 0;
+		transition: left 1s;
+	}
+
+	.wrap:hover .next {
+		right: 0;
+		transition: right 1s;
+	}
+
+	.content {
+		position: relative;
+		height: 300px;
+	}	
+
+	ul {
+		position: relative;
+		width:1200px;
+		left: 50%;
+		margin-left: -600px;
+		list-style-type: none;
+	}
+	li {
+		position: absolute;
+		left: 0;
+		transition: all 0.1s ease-out;
+		display: none;
+	
+	}
+
+	a {
+		text-decoration: none;
+		color: white;
+	}
+	
+	
+	.picLeft {
+		transform: translate3d(-77px,0,0) scale(0.8);
+		display: block;
+		opacity: 0.6;
+	}
+
+	.picCenter {
+		transform: translate3d(225px,0,0) scale(1);
+		z-index: 1;
+		display: block;
+		position: absolute;
+		opacity: 1;
+
+	}
+
+	.picRight {
+		transform: translate3d(523px,0,0) scale(0.8);
+		display: block;
+		opacity: 0.6;
+	}
+	img {
+		width: 750px;
+		height: 300px;
+	}
+	.pre {
+		position: absolute;
+		left: -80px;
+		z-index: 1;
+	}
+	.next {
+		position: absolute;
+		right:-80px;
+	}
+	.arrow {
+		width: 1%;
+		font-size: 40px;
+		display: inline-block;
+		margin-top: 130px;
+		padding: 20px 30px;
+		background-color: rgba(0,0,0,0.1);
+	}
+	.arrow:hover {
+		background-color: #20A0FF;
+	}
+	
+	#indexs {
+		text-align: center;
+	}
+
+	span {
+		font-size: xx-large;
+		margin: 0px 5px;
+		color: rgba(198,198,198,0.5);
+		cursor: pointer;
+	}
+
+	.on {
+		color: rgba(0,0,0,0.8);
+	}
+
+	
+	
+	</style>
+</head>
+<body>
+	<div id="app">
+		<carusel></carusel>
+	</div>
+	<template id="carusel">
+		<div class="carusel">
+			<div class="wrap">
+				<div class="content">
+					<div class="pre arrow" @click = "togglePre"><a href="javascript:;"><</a></div>
+						<ul>
+							<li v-for = "(item,index) in items">
+								<img :src="item.imgurl">
+							</li>
+						</ul>
+					<div class="next arrow" @click = "toggleNext"><a href="javascript:;">></a></div>
+				</div>
+				<div id="indexs">
+					<span v-for = "(item,index) in items" @click = "toggleIndex(index)">__</span>
+				</div>
+			</div>
+		</div>
+	</template>
+	<script type="text/javascript">
+		var data = {
+			items: [
+				{imgurl:'./public/1.jpg'},
+				{imgurl:'./public/2.jpg'},
+				{imgurl:'./public/3.jpg'},
+				{imgurl:'./public/1.jpg'},
+				{imgurl:'./public/2.jpg'},
+				{imgurl:'./public/3.jpg'},
+				{imgurl:'./public/1.jpg'},
+				{imgurl:'./public/2.jpg'},
+				{imgurl:'./public/3.jpg'},
+				{imgurl:'./public/1.jpg'},
+				{imgurl:'./public/2.jpg'},
+				{imgurl:'./public/3.jpg'},
+				{imgurl:'./public/1.jpg'},
+				{imgurl:'./public/2.jpg'},
+				{imgurl:'./public/3.jpg'}
+				
+			],
+			
+		};
+
+		var leftItem,centerItem,rightItem,currentIndex,lis,spans,timer=null,content;   //变量定义
+
+
+		Vue.component('carusel',{
+			template:'#carusel',
+			data () {
+				return data;
+			},
+			mounted () {
+				lis = this.$el.getElementsByTagName('li');   //初始化变量
+				currentIndex = 0;
+				spans = this.$el.getElementsByTagName('span');
+				wrap = this.$el.querySelector('.wrap');
+				this.animate();   //调用运动，初始化leftItem,centerItem,rightItem样式和位置。
+				this.lightIndex(); 
+				this.auotAnimate(); 
+			},
+			methods:{
+				togglePre:function () {                                         //向前运动
+				   
+					if (currentIndex == 1) {
+						currentIndex = lis.length-1;
+					}else if(currentIndex == 0){
+						currentIndex = lis.length-2;
+					}else {
+						currentIndex -= 2; 
+					}
+					this.animate();
+				},
+				toggleNext:function () {									    //向后运动
+					this.animate();
+				},
+				
+				animate: function () {
+					for (var i = 0; i < lis.length; i++) {                  //清除样式
+							lis[i].className = "";
+						}
+					if(currentIndex == lis.length-2){
+						lis[lis.length-2].className = "picLeft";
+						lis[lis.length-1].className = "picCenter";
+						lis[0].className = "picRight";
+						currentIndex +=1 ;
+						
+					}else if(currentIndex == lis.length-1){
+							lis[lis.length-1].className = "picLeft";
+							lis[0].className = "picCenter";
+							lis[1].className = "picRight";
+							currentIndex =0 ;
+					}else{
+
+						leftItem = lis[currentIndex];
+						centerItem = lis[currentIndex+1];
+						rightItem = lis[currentIndex+2];
+						leftItem.className = "picLeft";
+						centerItem.className = "picCenter";
+						rightItem.className = "picRight";
+						currentIndex += 1;
+					}
+					this.lightIndex(); 
+				},
+
+				lightIndex: function () {                                       //高亮索引标记
+					for (var i = 0; i < spans.length; i++) {
+						spans[i].className = "";
+					}
+					spans[currentIndex].className = "on";
+				},
+
+				toggleIndex: function (index) {
+					if(currentIndex < index) {
+						currentIndex = index-1;
+						this.toggleNext();
+					}else {
+						currentIndex = index+1;
+						this.togglePre();
+					}
+					this.lightIndex();
+				},
+
+				auotAnimate: function () {
+					clearInterval(timer);
+					timer = setInterval(this.animate,3000);
+					wrap.addEventListener('mouseover',function () {
+						clearInterval(timer);
+					});
+					wrap.addEventListener('mouseout',this.auotAnimate);
+					
+				}				
+			}
+		});
+
+		var vm = new Vue({
+			el: "#app"
+		})
+	</script>
+	
+</body>
+</html>
